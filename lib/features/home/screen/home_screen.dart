@@ -30,7 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // Giữ nguyên logic fetch API của bạn
     try {
       final token = box.read("accessToken");
-      final url = Uri.parse("https://events-ticket.lehuuhieu.dev/api/events");
+      final url = Uri.parse("http://localhost:5054/api/events");
 
       final response = await http.get(
         url,
@@ -59,13 +59,12 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Text(
-          "Eventick", 
+          "Eventick",
           style: TextStyle(
             color: Colors.black87,
             fontWeight: FontWeight.bold,
@@ -76,9 +75,7 @@ class _HomeScreenState extends State<HomeScreen> {
           IconButton(
             icon: const CircleAvatar(
               radius: 42,
-                          backgroundImage: AssetImage(
-                            'assets/images/avatar/user.png'
-                          ),
+              backgroundImage: AssetImage('assets/images/avatar/user.png'),
             ),
             onPressed: () {
               Get.to(() => const ProfileScreen());
@@ -96,9 +93,10 @@ class _HomeScreenState extends State<HomeScreen> {
             Text(
               "Xin chào, $userName!",
               style: const TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87),
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
             ),
             const Text(
               "Hãy khám phá những sự kiện tuyệt vời!",
@@ -106,7 +104,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 24),
 
-            
             TextField(
               decoration: InputDecoration(
                 hintText: "Tìm kiếm sự kiện...",
@@ -122,7 +119,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 24),
 
-            
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
@@ -162,7 +158,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     "Xem tất cả",
                     style: TextStyle(color: Colors.deepPurple),
                   ),
-                )
+                ),
               ],
             ),
             const SizedBox(height: 12),
@@ -174,7 +170,10 @@ class _HomeScreenState extends State<HomeScreen> {
               const Center(
                 child: Padding(
                   padding: EdgeInsets.all(20.0),
-                  child: Text("Không có sự kiện nào sắp diễn ra.", style: TextStyle(fontSize: 16, color: Colors.grey)),
+                  child: Text(
+                    "Không có sự kiện nào sắp diễn ra.",
+                    style: TextStyle(fontSize: 16, color: Colors.grey),
+                  ),
                 ),
               )
             else
@@ -218,62 +217,57 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildEventCard(Map<String, dynamic> event) {
-  final location = event['location'] ?? 'Chưa xác định';
-  final date = event["date"] ?? "N/A";
+    final location = event['location'] ?? 'Chưa xác định';
+    final date = event["date"] ?? "N/A";
 
-  return Card(
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(16),
-    ),
-    elevation: 4,
-    shadowColor: Colors.deepPurple.withOpacity(0.1),
-    margin: const EdgeInsets.symmetric(vertical: 10),
-    child: InkWell(
-      borderRadius: BorderRadius.circular(16),
-      onTap: () {
-        
-      },
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          ClipRRect(
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(16),
-              topRight: Radius.circular(16),
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 4,
+      shadowColor: Colors.deepPurple.withValues(alpha: 0.1),
+      margin: const EdgeInsets.symmetric(vertical: 10),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: () {},
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ClipRRect(
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(16),
+                topRight: Radius.circular(16),
+              ),
+              child: Image.asset(
+                "assets/images/events/event.png",
+                height: 150,
+                fit: BoxFit.cover,
+              ),
             ),
-            child: Image.asset(
-              "assets/images/events/event.png", 
-              height: 150,
-              fit: BoxFit.cover,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  event["title"] ?? "Không có tiêu đề",
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    event["title"] ?? "Không có tiêu đề",
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 8),
-                _buildInfoRow(Icons.calendar_today, date),
-                const SizedBox(height: 4),
-                _buildInfoRow(Icons.location_on, location),
-              ],
+                  const SizedBox(height: 8),
+                  _buildInfoRow(Icons.calendar_today, date),
+                  const SizedBox(height: 4),
+                  _buildInfoRow(Icons.location_on, location),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
-  );
-}
-
+    );
+  }
 
   // Widget phụ trợ cho Event Card - Nâng cấp mới
   Widget _buildInfoRow(IconData icon, String text) {

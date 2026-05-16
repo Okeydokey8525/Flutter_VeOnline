@@ -43,7 +43,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
       }
 
       final url = Uri.parse(
-        'http://10.0.2.2:5054/api/events/${widget.eventId}',
+        'http://localhost:5054/api/events/${widget.eventId}',
       );
       final response = await http.get(
         url,
@@ -91,7 +91,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
       if (token == null || token.isEmpty) return;
 
       final response = await http.put(
-        Uri.parse('http://10.0.2.2:5054/api/events/${widget.eventId}'),
+        Uri.parse('http://localhost:5054/api/events/${widget.eventId}'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -130,7 +130,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
       if (token == null || token.isEmpty) return;
 
       final response = await http.delete(
-        Uri.parse('http://10.0.2.2:5054/api/events/${widget.eventId}'),
+        Uri.parse('http://localhost:5054/api/events/${widget.eventId}'),
         headers: {
           'Authorization': 'Bearer $token',
           'Accept': 'application/json',

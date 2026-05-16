@@ -27,7 +27,7 @@ class _EventMembersListState extends State<EventMembersList> {
       final token = box.read("accessToken");
 
       final url = Uri.parse(
-        "http://10.0.2.2:5054/api/events/${widget.eventId}/members",
+        "http://localhost:5054/api/events/${widget.eventId}/members",
       );
       final response = await http.get(
         url,
@@ -36,8 +36,6 @@ class _EventMembersListState extends State<EventMembersList> {
           "Accept": "application/json",
         },
       );
-
-      print("👥 Members Response: ${response.statusCode} - ${response.body}");
 
       if (response.statusCode == 200) {
         setState(() {

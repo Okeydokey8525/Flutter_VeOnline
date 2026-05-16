@@ -2,10 +2,8 @@ import 'dart:ui';
 import 'package:event_ticket_app/features/auth/screens/registerscreen/register_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/app_routes.dart';
 import '../services/auth_service.dart';
-import '../model/login_response.dart';
 import 'package:get_storage/get_storage.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -86,16 +84,16 @@ class _LoginScreenState extends State<LoginScreen>
       // await prefs.setString("accessToken", response.accessToken ?? "");
       // await prefs.setString("role", response.role ?? "");
       final box = GetStorage(); // Sử dụng GetStorage để lưu trữ dữ liệu
-      await box.write("accessToken", response.accessToken ?? "");
-      await box.write("role", response.role ?? "");
-      await box.write("userName", response.userName ?? "");
+      await box.write("accessToken", response.accessToken);
+      await box.write("role", response.role);
+      await box.write("userName", response.userName);
       Get.offAllNamed(AppRoutes.home, arguments: response);
       //Get.offAllNamed(AppRoutes.home, arguments: response);
     } else {
       Get.snackbar(
         "Đăng nhập thất bại",
         "Sai tài khoản hoặc mật khẩu.",
-        backgroundColor: Colors.redAccent.withOpacity(0.9),
+        backgroundColor: Colors.redAccent.withValues(alpha: 0.9),
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
         borderRadius: 12,
@@ -130,7 +128,7 @@ class _LoginScreenState extends State<LoginScreen>
             top: -100,
             left: -100,
             child: _buildLightBlob(
-              color: Colors.purpleAccent.withOpacity(0.5),
+              color: Colors.purpleAccent.withValues(alpha: 0.5),
               size: 300,
             ),
           ),
@@ -138,7 +136,7 @@ class _LoginScreenState extends State<LoginScreen>
             bottom: -150,
             right: -100,
             child: _buildLightBlob(
-              color: Colors.deepPurple.withOpacity(0.6),
+              color: Colors.deepPurple.withValues(alpha: 0.6),
               size: 400,
             ),
           ),
@@ -170,9 +168,9 @@ class _LoginScreenState extends State<LoginScreen>
         child: Container(
           padding: const EdgeInsets.all(24.0),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.1),
+            color: Colors.white.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(20.0),
-            border: Border.all(color: Colors.white.withOpacity(0.2)),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
           ),
           child: FadeTransition(
             opacity: _fadeAnim,
@@ -210,7 +208,7 @@ class _LoginScreenState extends State<LoginScreen>
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: Colors.white.withOpacity(0.2),
+            color: Colors.white.withValues(alpha: 0.2),
           ),
           child: const Icon(
             Icons.event_seat_outlined,
@@ -230,7 +228,10 @@ class _LoginScreenState extends State<LoginScreen>
         const SizedBox(height: 8),
         Text(
           "Đăng nhập để tiếp tục",
-          style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 16),
+          style: TextStyle(
+            color: Colors.white.withValues(alpha: 0.8),
+            fontSize: 16,
+          ),
         ),
       ],
     );
@@ -246,10 +247,10 @@ class _LoginScreenState extends State<LoginScreen>
       style: const TextStyle(color: Colors.white),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
-        prefixIcon: Icon(icon, color: Colors.white.withOpacity(0.7)),
+        labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
+        prefixIcon: Icon(icon, color: Colors.white.withValues(alpha: 0.7)),
         filled: true,
-        fillColor: Colors.white.withOpacity(0.1),
+        fillColor: Colors.white.withValues(alpha: 0.1),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,
@@ -257,7 +258,7 @@ class _LoginScreenState extends State<LoginScreen>
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(
-            color: Colors.white.withOpacity(0.8),
+            color: Colors.white.withValues(alpha: 0.8),
             width: 1.5,
           ),
         ),
@@ -272,22 +273,22 @@ class _LoginScreenState extends State<LoginScreen>
       style: const TextStyle(color: Colors.white),
       decoration: InputDecoration(
         labelText: "Mật khẩu",
-        labelStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
+        labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
         prefixIcon: Icon(
           Icons.lock_outline,
-          color: Colors.white.withOpacity(0.7),
+          color: Colors.white.withValues(alpha: 0.7),
         ),
         suffixIcon: IconButton(
           icon: Icon(
             hidePassword
                 ? Icons.visibility_off_outlined
                 : Icons.visibility_outlined,
-            color: Colors.white.withOpacity(0.7),
+            color: Colors.white.withValues(alpha: 0.7),
           ),
           onPressed: () => setState(() => hidePassword = !hidePassword),
         ),
         filled: true,
-        fillColor: Colors.white.withOpacity(0.1),
+        fillColor: Colors.white.withValues(alpha: 0.1),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,
@@ -295,7 +296,7 @@ class _LoginScreenState extends State<LoginScreen>
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(
-            color: Colors.white.withOpacity(0.8),
+            color: Colors.white.withValues(alpha: 0.8),
             width: 1.5,
           ),
         ),
@@ -315,7 +316,7 @@ class _LoginScreenState extends State<LoginScreen>
             borderRadius: BorderRadius.circular(12),
           ),
           elevation: 8,
-          shadowColor: Colors.black.withOpacity(0.3),
+          shadowColor: Colors.black.withValues(alpha: 0.3),
         ),
         onPressed: isLoading ? null : handleLogin,
         child: isLoading
@@ -341,7 +342,7 @@ class _LoginScreenState extends State<LoginScreen>
       children: [
         Text(
           "Chưa có tài khoản? ",
-          style: TextStyle(color: Colors.white.withOpacity(0.8)),
+          style: TextStyle(color: Colors.white.withValues(alpha: 0.8)),
         ),
         GestureDetector(
           onTap: goToRegister,

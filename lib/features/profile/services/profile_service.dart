@@ -3,7 +3,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 
 class ProfileService {
-  static const String _baseUrl = "http://10.0.2.2:5054/api";
+  static const String _baseUrl = "http://localhost:5054/api";
 
   static Future<Map<String, dynamic>> getProfile() async {
     final box = GetStorage();

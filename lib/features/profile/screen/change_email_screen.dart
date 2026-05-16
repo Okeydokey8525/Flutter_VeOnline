@@ -23,9 +23,11 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
   }
 
   void _validateForm() {
-    final isFormValid = _newEmailController.text.isNotEmpty &&
-        RegExp(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]+")
-            .hasMatch(_newEmailController.text);
+    final isFormValid =
+        _newEmailController.text.isNotEmpty &&
+        RegExp(
+          r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]+",
+        ).hasMatch(_newEmailController.text);
 
     if (_isButtonEnabled != isFormValid) {
       setState(() {
@@ -74,14 +76,12 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
       }
 
       final response = await http.post(
-        Uri.parse("https://events-ticket.lehuuhieu.dev/api/profile/email/request-change"),
+        Uri.parse("http://localhost:5054/api/profile/email/request-change"),
         headers: {
           "Content-Type": "application/json",
           "Authorization": "Bearer $token", // ✅ truyền token đúng
         },
-        body: jsonEncode({
-          "newEmail": _newEmailController.text.trim(),
-        }),
+        body: jsonEncode({"newEmail": _newEmailController.text.trim()}),
       );
 
       final data = jsonDecode(response.body);
@@ -104,10 +104,7 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Lỗi: $e"),
-          backgroundColor: Colors.red,
-        ),
+        SnackBar(content: Text("Lỗi: $e"), backgroundColor: Colors.red),
       );
     } finally {
       setState(() {
@@ -158,10 +155,7 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
                 const SizedBox(height: 12.0),
                 Text(
                   'Chúng tôi sẽ gửi một liên kết xác minh đến địa chỉ email mới để đảm bảo đó là bạn.',
-                  style: TextStyle(
-                    fontSize: 16.0,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 16.0, color: Colors.grey[600]),
                 ),
                 const SizedBox(height: 40.0),
 
@@ -171,7 +165,10 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
                   keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(
                     labelText: 'Email mới',
-                    prefixIcon: Icon(Icons.email_outlined, color: Colors.grey[500]),
+                    prefixIcon: Icon(
+                      Icons.email_outlined,
+                      color: Colors.grey[500],
+                    ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12.0),
                     ),
@@ -180,8 +177,9 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
                     if (value == null || value.isEmpty) {
                       return 'Vui lòng nhập email mới';
                     }
-                    if (!RegExp(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]+")
-                        .hasMatch(value)) {
+                    if (!RegExp(
+                      r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]+",
+                    ).hasMatch(value)) {
                       return 'Địa chỉ email không hợp lệ';
                     }
                     return null;
@@ -193,7 +191,9 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: _isButtonEnabled && !_isLoading ? _confirmAndSubmit : null,
+                    onPressed: _isButtonEnabled && !_isLoading
+                        ? _confirmAndSubmit
+                        : null,
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16.0),
                       backgroundColor: _isButtonEnabled
@@ -211,7 +211,9 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
                             style: TextStyle(
                               fontSize: 18.0,
                               fontWeight: FontWeight.bold,
-                              color: _isButtonEnabled ? Colors.white : Colors.grey[500],
+                              color: _isButtonEnabled
+                                  ? Colors.white
+                                  : Colors.grey[500],
                             ),
                           ),
                   ),

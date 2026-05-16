@@ -18,70 +18,66 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   bool _isLoading = false;
 
   Future<void> _submitChangePassword() async {
-  if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) return;
 
-  setState(() => _isLoading = true);
+    setState(() => _isLoading = true);
 
-  try {
-    final box = GetStorage();
-    final token = box.read("accessToken");
+    try {
+      final box = GetStorage();
+      final token = box.read("accessToken");
 
-    if (token == null) {
-      throw Exception("Token không tồn tại, vui lòng đăng nhập lại.");
+      if (token == null) {
+        throw Exception("Token không tồn tại, vui lòng đăng nhập lại.");
+      }
+
+      final response = await http.put(
+        Uri.parse("http://localhost:5054/api/profile/password"),
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer $token",
+        },
+        body: jsonEncode({
+          "currentPassword": _currentPassCtrl.text.trim(),
+          "newPassword": _newPassCtrl.text.trim(),
+          "confirmNewPassword": _confirmPassCtrl.text.trim(),
+        }),
+      );
+
+      // Log để debug
+      debugPrint("🔑 Status: ${response.statusCode}");
+      debugPrint("📩 Body: ${response.body}");
+
+      Map<String, dynamic> data = {};
+      try {
+        data = jsonDecode(response.body);
+      } catch (_) {
+        data = {"message": response.body}; // fallback nếu backend trả string
+      }
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(data["message"] ?? "Đổi mật khẩu thành công."),
+            backgroundColor: Colors.green,
+          ),
+        );
+        Navigator.of(context).pop();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(data["message"] ?? "Có lỗi xảy ra."),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Lỗi: $e"), backgroundColor: Colors.red),
+      );
+    } finally {
+      setState(() => _isLoading = false);
     }
-
-    final response = await http.put(
-  Uri.parse("https://events-ticket.lehuuhieu.dev/api/profile/password"),
-  headers: {
-    "Content-Type": "application/json",
-    "Authorization": "Bearer $token",
-  },
-  body: jsonEncode({
-    "currentPassword": _currentPassCtrl.text.trim(),
-    "newPassword": _newPassCtrl.text.trim(),
-    "confirmNewPassword": _confirmPassCtrl.text.trim(),
-  }),
-);
-
-// Log để debug
-debugPrint("🔑 Status: ${response.statusCode}");
-debugPrint("📩 Body: ${response.body}");
-
-Map<String, dynamic> data = {};
-try {
-  data = jsonDecode(response.body);
-} catch (_) {
-  data = {"message": response.body}; // fallback nếu backend trả string
-}
-
-if (response.statusCode == 200) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Text(data["message"] ?? "Đổi mật khẩu thành công."),
-      backgroundColor: Colors.green,
-    ),
-  );
-  Navigator.of(context).pop();
-} else {
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Text(data["message"] ?? "Có lỗi xảy ra."),
-      backgroundColor: Colors.red,
-    ),
-  );
-}
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text("Lỗi: $e"),
-        backgroundColor: Colors.red,
-      ),
-    );
-  } finally {
-    setState(() => _isLoading = false);
   }
-}
-
 
   @override
   void dispose() {
@@ -142,8 +138,9 @@ if (response.statusCode == 200) {
                       borderRadius: BorderRadius.circular(12.0),
                     ),
                   ),
-                  validator: (value) =>
-                      value == null || value.isEmpty ? "Vui lòng nhập mật khẩu hiện tại" : null,
+                  validator: (value) => value == null || value.isEmpty
+                      ? "Vui lòng nhập mật khẩu hiện tại"
+                      : null,
                 ),
                 const SizedBox(height: 20.0),
 
@@ -158,8 +155,9 @@ if (response.statusCode == 200) {
                       borderRadius: BorderRadius.circular(12.0),
                     ),
                   ),
-                  validator: (value) =>
-                      value == null || value.length < 6 ? "Mật khẩu mới phải ít nhất 6 ký tự" : null,
+                  validator: (value) => value == null || value.length < 6
+                      ? "Mật khẩu mới phải ít nhất 6 ký tự"
+                      : null,
                 ),
                 const SizedBox(height: 20.0),
 
@@ -203,7 +201,10 @@ if (response.statusCode == 200) {
                         ? const CircularProgressIndicator(color: Colors.white)
                         : const Text(
                             'Xác nhận',
-                            style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                              fontSize: 18.0,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                   ),
                 ),

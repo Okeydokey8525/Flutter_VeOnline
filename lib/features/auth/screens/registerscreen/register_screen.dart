@@ -77,7 +77,7 @@ class _RegisterScreenState extends State<RegisterScreen>
       Get.snackbar(
         "Thông tin không hợp lệ",
         "Vui lòng điền đầy đủ thông tin",
-        backgroundColor: Colors.orangeAccent.withOpacity(0.9),
+        backgroundColor: Colors.orangeAccent.withValues(alpha: 0.9),
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
         borderRadius: 12,
@@ -89,7 +89,7 @@ class _RegisterScreenState extends State<RegisterScreen>
 
     setState(() => isLoading = true);
 
-    final url = Uri.parse("http://10.0.2.2:5054/api/auth/register");
+    final url = Uri.parse("http://localhost:5054/api/auth/register");
     final body = jsonEncode({
       "userName": username,
       "password": password,
@@ -117,7 +117,7 @@ class _RegisterScreenState extends State<RegisterScreen>
         Get.snackbar(
           "Thành công",
           msg,
-          backgroundColor: Colors.green.withOpacity(0.9),
+          backgroundColor: Colors.green.withValues(alpha: 0.9),
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM,
           borderRadius: 12,
@@ -137,7 +137,7 @@ class _RegisterScreenState extends State<RegisterScreen>
           "Đăng ký thất bại",
           // Body của response 409 là text thuần, không phải JSON
           response.body,
-          backgroundColor: Colors.orangeAccent.withOpacity(0.9),
+          backgroundColor: Colors.orangeAccent.withValues(alpha: 0.9),
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM,
           borderRadius: 12,
@@ -150,7 +150,7 @@ class _RegisterScreenState extends State<RegisterScreen>
         Get.snackbar(
           "Đăng ký thất bại",
           "Có lỗi xảy ra từ máy chủ, vui lòng thử lại.",
-          backgroundColor: Colors.redAccent.withOpacity(0.9),
+          backgroundColor: Colors.redAccent.withValues(alpha: 0.9),
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM,
           borderRadius: 12,
@@ -164,7 +164,7 @@ class _RegisterScreenState extends State<RegisterScreen>
       Get.snackbar(
         "Lỗi kết nối",
         "Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại mạng.",
-        backgroundColor: Colors.redAccent.withOpacity(0.9),
+        backgroundColor: Colors.redAccent.withValues(alpha: 0.9),
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
         borderRadius: 12,
@@ -192,7 +192,7 @@ class _RegisterScreenState extends State<RegisterScreen>
             top: -100,
             left: -100,
             child: _buildLightBlob(
-              color: Colors.purpleAccent.withOpacity(0.5),
+              color: Colors.purpleAccent.withValues(alpha: 0.5),
               size: 300,
             ),
           ),
@@ -200,7 +200,7 @@ class _RegisterScreenState extends State<RegisterScreen>
             bottom: -150,
             right: -100,
             child: _buildLightBlob(
-              color: Colors.deepPurple.withOpacity(0.6),
+              color: Colors.deepPurple.withValues(alpha: 0.6),
               size: 400,
             ),
           ),
@@ -239,9 +239,9 @@ class _RegisterScreenState extends State<RegisterScreen>
         child: Container(
           padding: const EdgeInsets.all(24.0),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.1),
+            color: Colors.white.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(20.0),
-            border: Border.all(color: Colors.white.withOpacity(0.2)),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
           ),
           child: FadeTransition(
             opacity: _fadeAnim,
@@ -289,7 +289,7 @@ class _RegisterScreenState extends State<RegisterScreen>
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: Colors.white.withOpacity(0.2),
+            color: Colors.white.withValues(alpha: 0.2),
           ),
           child: const Icon(
             Icons.person_add_alt_1_outlined,
@@ -309,7 +309,10 @@ class _RegisterScreenState extends State<RegisterScreen>
         const SizedBox(height: 8),
         Text(
           "Tạo tài khoản mới để bắt đầu",
-          style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 16),
+          style: TextStyle(
+            color: Colors.white.withValues(alpha: 0.8),
+            fontSize: 16,
+          ),
         ),
       ],
     );
@@ -327,10 +330,10 @@ class _RegisterScreenState extends State<RegisterScreen>
       keyboardType: isEmail ? TextInputType.emailAddress : TextInputType.text,
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
-        prefixIcon: Icon(icon, color: Colors.white.withOpacity(0.7)),
+        labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
+        prefixIcon: Icon(icon, color: Colors.white.withValues(alpha: 0.7)),
         filled: true,
-        fillColor: Colors.white.withOpacity(0.1),
+        fillColor: Colors.white.withValues(alpha: 0.1),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,
@@ -338,7 +341,7 @@ class _RegisterScreenState extends State<RegisterScreen>
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(
-            color: Colors.white.withOpacity(0.8),
+            color: Colors.white.withValues(alpha: 0.8),
             width: 1.5,
           ),
         ),
@@ -353,22 +356,22 @@ class _RegisterScreenState extends State<RegisterScreen>
       style: const TextStyle(color: Colors.white),
       decoration: InputDecoration(
         labelText: "Mật khẩu",
-        labelStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
+        labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
         prefixIcon: Icon(
           Icons.lock_outline,
-          color: Colors.white.withOpacity(0.7),
+          color: Colors.white.withValues(alpha: 0.7),
         ),
         suffixIcon: IconButton(
           icon: Icon(
             hidePassword
                 ? Icons.visibility_off_outlined
                 : Icons.visibility_outlined,
-            color: Colors.white.withOpacity(0.7),
+            color: Colors.white.withValues(alpha: 0.7),
           ),
           onPressed: () => setState(() => hidePassword = !hidePassword),
         ),
         filled: true,
-        fillColor: Colors.white.withOpacity(0.1),
+        fillColor: Colors.white.withValues(alpha: 0.1),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,
@@ -376,7 +379,7 @@ class _RegisterScreenState extends State<RegisterScreen>
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(
-            color: Colors.white.withOpacity(0.8),
+            color: Colors.white.withValues(alpha: 0.8),
             width: 1.5,
           ),
         ),
@@ -396,7 +399,7 @@ class _RegisterScreenState extends State<RegisterScreen>
             borderRadius: BorderRadius.circular(12),
           ),
           elevation: 8,
-          shadowColor: Colors.black.withOpacity(0.3),
+          shadowColor: Colors.black.withValues(alpha: 0.3),
         ),
         onPressed: isLoading ? null : handleRegister,
         child: isLoading
@@ -422,7 +425,7 @@ class _RegisterScreenState extends State<RegisterScreen>
       children: [
         Text(
           "Đã có tài khoản? ",
-          style: TextStyle(color: Colors.white.withOpacity(0.8)),
+          style: TextStyle(color: Colors.white.withValues(alpha: 0.8)),
         ),
         GestureDetector(
           onTap: () => Get.back(),

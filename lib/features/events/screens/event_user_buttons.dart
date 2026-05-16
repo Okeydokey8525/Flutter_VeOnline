@@ -21,7 +21,7 @@ class _EventUserButtonsState extends State<EventUserButtons> {
     checkRegistration();
   }
 
-  // 👈 Kiểm tra trạng thái đăng ký từ backend
+  // Kiểm tra trạng thái đăng ký từ backend
   Future<void> checkRegistration() async {
     setState(() => isLoading = true);
     try {
@@ -30,7 +30,7 @@ class _EventUserButtonsState extends State<EventUserButtons> {
 
       // API check đăng ký
       final url = Uri.parse(
-        "http://10.0.2.2:5054/api/registrations/check/${widget.eventId}",
+        "http://localhost:5054/api/registrations/check/${widget.eventId}",
       );
 
       final response = await http.get(
@@ -64,7 +64,7 @@ class _EventUserButtonsState extends State<EventUserButtons> {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString("accessToken");
       final url = Uri.parse(
-        "http://10.0.2.2:5054/api/registrations/register-event",
+        "http://localhost:5054/api/registrations/register-event",
       );
 
       final response = await http.post(
@@ -107,7 +107,7 @@ class _EventUserButtonsState extends State<EventUserButtons> {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString("accessToken");
       final url = Uri.parse(
-        "http://10.0.2.2:5054/api/registrations/cancel-registration/${widget.eventId}",
+        "http://localhost:5054/api/registrations/cancel-registration/${widget.eventId}",
       );
 
       final response = await http.post(

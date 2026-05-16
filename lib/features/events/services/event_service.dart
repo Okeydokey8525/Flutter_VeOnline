@@ -4,7 +4,7 @@ import 'package:get_storage/get_storage.dart';
 import '../model/event.dart';
 
 class EventService {
-  static const String baseUrl = "http://10.0.2.2:5054/api/events";
+  static const String baseUrl = "http://localhost:5054/api/events";
 
   /// Lấy accessToken đã lưu khi login
   static String? _getToken() {
@@ -66,7 +66,6 @@ class EventService {
       final data = jsonDecode(response.body);
       return Event.fromJson(data);
     } else {
-      print("❌ Create event failed: ${response.statusCode}, ${response.body}");
       return null;
     }
   }

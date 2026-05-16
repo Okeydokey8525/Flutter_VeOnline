@@ -41,11 +41,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     if (_futureProfile == null) {
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     return Scaffold(
       backgroundColor: Colors.grey[100],
@@ -74,7 +70,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   top: 40,
                   left: 10,
                   child: IconButton(
-                    icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+                    icon: const Icon(
+                      Icons.arrow_back_ios_new,
+                      color: Colors.white,
+                    ),
                     onPressed: () => Get.back(),
                   ),
                 ),
@@ -87,28 +86,46 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         backgroundColor: Colors.white,
                         child: CircleAvatar(
                           radius: 52,
-                          backgroundImage: AssetImage('assets/images/avatar/user.png'),
+                          backgroundImage: AssetImage(
+                            'assets/images/avatar/user.png',
+                          ),
                         ),
                       ),
                       const SizedBox(height: 12),
-                      
+
                       // Dùng FutureBuilder để xây dựng UI từ kết quả API
                       FutureBuilder<Map<String, dynamic>>(
                         future: _futureProfile,
                         builder: (context, snapshot) {
                           // Khi đang chờ dữ liệu
-                          if (snapshot.connectionState == ConnectionState.waiting) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
                             return const Column(
                               children: [
-                                Text("Đang tải...", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                                Text(
+                                  "Đang tải...",
+                                  style: TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                                 SizedBox(height: 4),
-                                CircularProgressIndicator(strokeWidth: 2, color: Colors.deepPurple),
+                                CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.deepPurple,
+                                ),
                               ],
                             );
                           }
                           // Khi có lỗi xảy ra
                           if (snapshot.hasError) {
-                            return Text("Lỗi: ${snapshot.error}", style: const TextStyle(color: Colors.red, fontSize: 16));
+                            return Text(
+                              "Lỗi: ${snapshot.error}",
+                              style: const TextStyle(
+                                color: Colors.red,
+                                fontSize: 16,
+                              ),
+                            );
                           }
                           // Khi có dữ liệu thành công
                           if (snapshot.hasData) {
@@ -160,7 +177,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 20),
 
             // --- MENU ACTIONS SECTION (Giữ nguyên) ---
@@ -173,7 +190,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.grey.withOpacity(0.1),
+                      color: Colors.grey.withValues(alpha: 0.1),
                       spreadRadius: 2,
                       blurRadius: 10,
                     ),
@@ -187,7 +204,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const ChangeEmailScreen()),
+                          MaterialPageRoute(
+                            builder: (context) => const ChangeEmailScreen(),
+                          ),
                         );
                       },
                     ),
@@ -197,7 +216,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const ChangePasswordScreen()),
+                          MaterialPageRoute(
+                            builder: (context) => const ChangePasswordScreen(),
+                          ),
                         );
                       },
                     ),
@@ -246,23 +267,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ),
         const SizedBox(height: 5),
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey[600],
-          ),
-        ),
+        Text(title, style: TextStyle(fontSize: 14, color: Colors.grey[600])),
       ],
     );
   }
-  
+
   Widget _buildStatDivider() {
-    return Container(
-      height: 40,
-      width: 1,
-      color: Colors.grey[200],
-    );
+    return Container(height: 40, width: 1, color: Colors.grey[200]);
   }
 
   Widget _buildProfileMenuItem({
@@ -278,10 +289,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       leading: Icon(icon, color: color),
       title: Text(
         title,
-        style: TextStyle(
-          fontWeight: FontWeight.w500,
-          color: color,
-        ),
+        style: TextStyle(fontWeight: FontWeight.w500, color: color),
       ),
       trailing: isLogout
           ? null
