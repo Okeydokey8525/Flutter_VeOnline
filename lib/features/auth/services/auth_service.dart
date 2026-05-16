@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import '../model/login_response.dart';
 
 class AuthService {
-  static const String loginUrl = "http://localhost:5054/api/auth/login";
+  static const String loginUrl = "http://10.0.2.2:5054/api/auth/login";
 
   static Future<LoginResponse?> login(String username, String password) async {
     final url = Uri.parse(loginUrl);

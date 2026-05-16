@@ -4,7 +4,7 @@ import 'package:get_storage/get_storage.dart';
 import '../model/event.dart';
 
 class EventService {
-  static const String baseUrl = "http://localhost:5054/api/events";
+  static const String baseUrl = "http://10.0.2.2:5054/api/events";
 
   /// Lấy accessToken đã lưu khi login
   static String? _getToken() {
@@ -95,6 +95,7 @@ class EventService {
       headers: {if (token != null) "Authorization": "Bearer $token"},
     );
 
-    return response.statusCode == 200;
+    // Accept any 2xx status as success (e.g. 200 or 204)
+    return response.statusCode >= 200 && response.statusCode < 300;
   }
 }

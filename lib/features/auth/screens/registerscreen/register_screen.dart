@@ -89,7 +89,7 @@ class _RegisterScreenState extends State<RegisterScreen>
 
     setState(() => isLoading = true);
 
-    final url = Uri.parse("http://localhost:5054/api/auth/register");
+    final url = Uri.parse("http://10.0.2.2:5054/api/auth/register");
     final body = jsonEncode({
       "userName": username,
       "password": password,

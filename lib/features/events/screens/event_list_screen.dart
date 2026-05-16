@@ -51,15 +51,15 @@ class _EventListScreenState extends State<EventListScreen> {
       final success = await EventService.deleteEvent(event.id!);
       if (success) {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("✅ Xóa thành công")),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text("✅ Xóa thành công")));
         _loadEvents(); // refresh list
       } else {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("❌ Xóa thất bại")),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text("❌ Xóa thất bại")));
       }
     }
   }
@@ -73,7 +73,8 @@ class _EventListScreenState extends State<EventListScreen> {
       appBar: AppBar(
         title: const Text("Events"),
         actions: [
-          if (userRole == "Organizer") // chỉ organizer mới tạo được sự kiện
+          if (userRole.toString().toLowerCase() ==
+              "organizer") // chỉ organizer mới tạo được sự kiện
             IconButton(
               icon: const Icon(Icons.add),
               onPressed: () async {
@@ -116,9 +117,12 @@ class _EventListScreenState extends State<EventListScreen> {
                     children: [
                       Text(
                         event.startTime.toString().substring(0, 10),
-                        style: const TextStyle(fontSize: 12, color: Colors.grey),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey,
+                        ),
                       ),
-                      if (userRole == "Organizer")
+                      if (userRole.toString().toLowerCase() == "organizer")
                         IconButton(
                           icon: const Icon(Icons.delete, color: Colors.red),
                           onPressed: () => _deleteEvent(event),

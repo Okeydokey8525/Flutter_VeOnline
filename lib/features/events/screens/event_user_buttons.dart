@@ -1,7 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
+// import 'package:shared_preferences/shared_preferences.dart';
+import 'package:get_storage/get_storage.dart';
 
 class EventUserButtons extends StatefulWidget {
   final int eventId;
@@ -25,12 +26,22 @@ class _EventUserButtonsState extends State<EventUserButtons> {
   Future<void> checkRegistration() async {
     setState(() => isLoading = true);
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString("accessToken");
+      final box = GetStorage();
+      final token = box.read("accessToken") as String?;
+
+      if (token == null || token.isEmpty) {
+        setState(() => isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('⚠️ Vui lòng đăng nhập để thực hiện hành động này'),
+          ),
+        );
+        return;
+      }
 
       // API check đăng ký
       final url = Uri.parse(
-        "http://localhost:5054/api/registrations/check/${widget.eventId}",
+        "http://10.0.2.2:5054/api/registrations/check/${widget.eventId}",
       );
 
       final response = await http.get(
@@ -61,10 +72,19 @@ class _EventUserButtonsState extends State<EventUserButtons> {
   Future<void> registerEvent() async {
     setState(() => isLoading = true);
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString("accessToken");
+      final box = GetStorage();
+      final token = box.read("accessToken") as String?;
+
+      if (token == null || token.isEmpty) {
+        setState(() => isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('⚠️ Vui lòng đăng nhập để mua vé')),
+        );
+        return;
+      }
+
       final url = Uri.parse(
-        "http://localhost:5054/api/registrations/register-event",
+        "http://10.0.2.2:5054/api/registrations/register-event",
       );
 
       final response = await http.post(
@@ -72,11 +92,12 @@ class _EventUserButtonsState extends State<EventUserButtons> {
         headers: {
           "Content-Type": "application/json",
           "Authorization": "Bearer $token",
+          "Accept": "application/json",
         },
         body: jsonEncode({"eventId": widget.eventId}),
       );
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
+      if (response.statusCode >= 200 && response.statusCode < 300) {
         setState(() => isRegistered = true);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("✅ Đăng ký sự kiện thành công")),
@@ -104,10 +125,19 @@ class _EventUserButtonsState extends State<EventUserButtons> {
   Future<void> cancelRegistration() async {
     setState(() => isLoading = true);
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString("accessToken");
+      final box = GetStorage();
+      final token = box.read("accessToken") as String?;
+
+      if (token == null || token.isEmpty) {
+        setState(() => isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('⚠️ Vui lòng đăng nhập để hủy vé')),
+        );
+        return;
+      }
+
       final url = Uri.parse(
-        "http://localhost:5054/api/registrations/cancel-registration/${widget.eventId}",
+        "http://10.0.2.2:5054/api/registrations/cancel-registration/${widget.eventId}",
       );
 
       final response = await http.post(
@@ -115,11 +145,12 @@ class _EventUserButtonsState extends State<EventUserButtons> {
         headers: {
           "Content-Type": "application/json",
           "Authorization": "Bearer $token",
+          "Accept": "application/json",
         },
         body: jsonEncode({"eventId": widget.eventId}),
       );
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
+      if (response.statusCode >= 200 && response.statusCode < 300) {
         setState(() => isRegistered = false);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("✅ Hủy đăng ký thành công")),

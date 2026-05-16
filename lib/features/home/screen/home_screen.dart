@@ -30,7 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // Giữ nguyên logic fetch API của bạn
     try {
       final token = box.read("accessToken");
-      final url = Uri.parse("http://localhost:5054/api/events");
+      final url = Uri.parse("http://10.0.2.2:5054/api/events");
 
       final response = await http.get(
         url,

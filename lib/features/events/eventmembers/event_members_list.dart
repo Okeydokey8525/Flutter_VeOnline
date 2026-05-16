@@ -27,7 +27,7 @@ class _EventMembersListState extends State<EventMembersList> {
       final token = box.read("accessToken");
 
       final url = Uri.parse(
-        "http://localhost:5054/api/events/${widget.eventId}/members",
+        "http://10.0.2.2:5054/api/events/${widget.eventId}/members",
       );
       final response = await http.get(
         url,
