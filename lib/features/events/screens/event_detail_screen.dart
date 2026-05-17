@@ -352,7 +352,11 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                         ),
                         const SizedBox(height: 20),
                         EventMembersList(eventId: widget.eventId),
-                        if (isUser) EventUserButtons(eventId: widget.eventId),
+                        if (isUser)
+                          EventUserButtons(
+                            eventId: widget.eventId,
+                            eventTitle: (event!['title'] ?? 'Sự kiện').toString(),
+                          ),
                       ],
                     ),
                   ),
