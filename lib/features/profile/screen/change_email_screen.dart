@@ -1,7 +1,8 @@
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
-import 'package:get_storage/get_storage.dart'; // ✅ thay vì shared_preferences
 
 class ChangeEmailScreen extends StatefulWidget {
   const ChangeEmailScreen({super.key});
@@ -12,27 +13,20 @@ class ChangeEmailScreen extends StatefulWidget {
 
 class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _newEmailController = TextEditingController();
+  final _newUserNameController = TextEditingController();
   bool _isButtonEnabled = false;
   bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    _newEmailController.addListener(_validateForm);
+    _newUserNameController.addListener(_validateForm);
   }
 
   void _validateForm() {
-    final isFormValid =
-        _newEmailController.text.isNotEmpty &&
-        RegExp(
-          r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]+",
-        ).hasMatch(_newEmailController.text);
-
+    final isFormValid = _newUserNameController.text.trim().length >= 3;
     if (_isButtonEnabled != isFormValid) {
-      setState(() {
-        _isButtonEnabled = isFormValid;
-      });
+      setState(() => _isButtonEnabled = isFormValid);
     }
   }
 
@@ -42,184 +36,103 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("Xác nhận thay đổi"),
-        content: const Text("Bạn có chắc chắn muốn thay đổi email không?"),
+        title: const Text('Xác nhận thay đổi'),
+        content: const Text('Bạn có chắc chắn muốn thay đổi tên người dùng không?'),
         actions: [
-          TextButton(
-            child: const Text("Hủy"),
-            onPressed: () => Navigator.of(context).pop(false),
-          ),
-          ElevatedButton(
-            child: const Text("Đồng ý"),
-            onPressed: () => Navigator.of(context).pop(true),
-          ),
+          TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Hủy')),
+          ElevatedButton(onPressed: () => Navigator.of(context).pop(true), child: const Text('Đồng ý')),
         ],
       ),
     );
 
     if (confirm == true) {
-      _submitChangeEmail();
+      _submitChangeUserName();
     }
   }
 
-  Future<void> _submitChangeEmail() async {
-    setState(() {
-      _isLoading = true;
-    });
+  Future<void> _submitChangeUserName() async {
+    setState(() => _isLoading = true);
 
     try {
       final box = GetStorage();
-      final token = box.read("accessToken"); // ✅ lấy token đã lưu
+      final token = box.read('accessToken');
+      if (token == null) throw Exception('Token không tồn tại, vui lòng đăng nhập lại.');
 
-      if (token == null) {
-        throw Exception("Token không tồn tại, vui lòng đăng nhập lại.");
-      }
+      final newName = _newUserNameController.text.trim();
 
-      final response = await http.post(
-        Uri.parse("http://localhost:5054/api/profile/email/request-change"),
+      final response = await http.put(
+        Uri.parse('http://10.0.2.2:5054/api/profile/username'),
         headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer $token", // ✅ truyền token đúng
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
         },
-        body: jsonEncode({"newEmail": _newEmailController.text.trim()}),
+        body: jsonEncode({'username': newName}),
       );
 
-      final data = jsonDecode(response.body);
+      await box.write('userName', newName);
 
-      if (response.statusCode == 200) {
+      if (!mounted) return;
+      if (response.statusCode >= 200 && response.statusCode < 300) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(data["message"] ?? "Bạn đã thay đổi thành công."),
-            backgroundColor: Colors.green,
-          ),
+          const SnackBar(content: Text('✅ Cập nhật tên người dùng thành công'), backgroundColor: Colors.green),
         );
-        Navigator.of(context).pop();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(data["message"] ?? "Có lỗi xảy ra."),
-            backgroundColor: Colors.red,
-          ),
+          const SnackBar(content: Text('⚠️ Đã cập nhật tên cục bộ, backend chưa nhận thay đổi'), backgroundColor: Colors.orange),
         );
       }
+      Navigator.of(context).pop(true);
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Lỗi: $e"), backgroundColor: Colors.red),
+        SnackBar(content: Text('Lỗi: $e'), backgroundColor: Colors.red),
       );
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
   @override
   void dispose() {
-    _newEmailController.dispose();
+    _newUserNameController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: const Text(
-          'Thay đổi Email',
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
-        backgroundColor: Colors.white,
-        elevation: 0,
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Cập nhật email của bạn',
-                  style: TextStyle(
-                    fontSize: 26.0,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
+      appBar: AppBar(title: const Text('Thay đổi tên người dùng')),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('Cập nhật tên hiển thị', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 10),
+              const Text('Tên mới sẽ hiển thị trong thông tin cá nhân của bạn.'),
+              const SizedBox(height: 28),
+              TextFormField(
+                controller: _newUserNameController,
+                decoration: const InputDecoration(labelText: 'Tên người dùng mới', border: OutlineInputBorder()),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) return 'Vui lòng nhập tên người dùng';
+                  if (value.trim().length < 3) return 'Tên người dùng tối thiểu 3 ký tự';
+                  return null;
+                },
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _isButtonEnabled && !_isLoading ? _confirmAndSubmit : null,
+                  child: _isLoading
+                      ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                      : const Text('Cập nhật tên'),
                 ),
-                const SizedBox(height: 12.0),
-                Text(
-                  'Chúng tôi sẽ gửi một liên kết xác minh đến địa chỉ email mới để đảm bảo đó là bạn.',
-                  style: TextStyle(fontSize: 16.0, color: Colors.grey[600]),
-                ),
-                const SizedBox(height: 40.0),
-
-                // New Email Input
-                TextFormField(
-                  controller: _newEmailController,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(
-                    labelText: 'Email mới',
-                    prefixIcon: Icon(
-                      Icons.email_outlined,
-                      color: Colors.grey[500],
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12.0),
-                    ),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Vui lòng nhập email mới';
-                    }
-                    if (!RegExp(
-                      r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]+",
-                    ).hasMatch(value)) {
-                      return 'Địa chỉ email không hợp lệ';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 40.0),
-
-                // Submit Button
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: _isButtonEnabled && !_isLoading
-                        ? _confirmAndSubmit
-                        : null,
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16.0),
-                      backgroundColor: _isButtonEnabled
-                          ? Theme.of(context).primaryColor
-                          : Colors.grey[300],
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12.0),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: _isLoading
-                        ? const CircularProgressIndicator(color: Colors.white)
-                        : Text(
-                            'Gửi link xác nhận',
-                            style: TextStyle(
-                              fontSize: 18.0,
-                              fontWeight: FontWeight.bold,
-                              color: _isButtonEnabled
-                                  ? Colors.white
-                                  : Colors.grey[500],
-                            ),
-                          ),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

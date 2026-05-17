@@ -6,6 +6,7 @@ import '../features/profile/screen/profile_screen.dart';
 import '../features/auth/screens/registerscreen/register_screen.dart';
 import '../features/profile/screen/change_email_screen.dart';
 import '../features/profile/screen/change_password_screen.dart';
+import '../features/tickets/screen/my_tickets_screen.dart';
 
 
 class AppRoutes {
@@ -16,6 +17,7 @@ class AppRoutes {
   static const register = '/register';
   static const changeEmail = '/change-email';
   static const changePassword = '/change-password';
+  static const myTickets = '/my-tickets';
 }
 
 class AppPages {
@@ -47,6 +49,10 @@ class AppPages {
     GetPage(
       name: AppRoutes.changePassword,
       page: () => const ChangePasswordScreen(),
+    ),
+    GetPage(
+      name: AppRoutes.myTickets,
+      page: () => const MyTicketsScreen(),
     ),
   ];
 }
