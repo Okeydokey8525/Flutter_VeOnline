@@ -1,9 +1,12 @@
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:http/http.dart' as http;
 import 'package:get_storage/get_storage.dart';
+import 'package:http/http.dart' as http;
+
 import '../../../core/app_routes.dart';
+import '../../events/screens/event_detail_screen.dart';
 import '../../profile/screen/profile_screen.dart';
 import '../../events/screens/event_detail_screen.dart';
 
@@ -16,45 +19,64 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final box = GetStorage();
-  String userName = "";
+  final TextEditingController searchCtrl = TextEditingController();
+  String userName = '';
   List<dynamic> events = [];
+  List<dynamic> filteredEvents = [];
   bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    userName = box.read("userName") ?? "Người dùng";
+    userName = box.read('userName') ?? 'Người dùng';
     fetchEvents();
   }
 
   Future<void> fetchEvents() async {
-    // Giữ nguyên logic fetch API của bạn
     try {
-      final token = box.read("accessToken");
-      final url = Uri.parse("http://10.0.2.2:5054/api/events");
+      final token = box.read('accessToken');
+      final url = Uri.parse('http://10.0.2.2:5054/api/events');
 
       final response = await http.get(
         url,
-        headers: {"Authorization": "Bearer $token"},
+        headers: {'Authorization': 'Bearer $token'},
       );
 
       if (response.statusCode == 200) {
+        final data = jsonDecode(response.body) as List<dynamic>;
         setState(() {
-          events = jsonDecode(response.body);
+          events = data;
+          filteredEvents = data;
           isLoading = false;
         });
       } else {
-        setState(() {
-          isLoading = false;
-        });
-        // Get.snackbar("Lỗi", "Không tải được sự kiện");
+        setState(() => isLoading = false);
       }
     } catch (e) {
-      setState(() {
-        isLoading = false;
-      });
-      Get.snackbar("Lỗi", "Có lỗi xảy ra: $e");
+      setState(() => isLoading = false);
+      Get.snackbar('Lỗi', 'Có lỗi xảy ra: $e');
     }
+  }
+
+  void _performSearch() {
+    final keyword = searchCtrl.text.trim().toLowerCase();
+    setState(() {
+      if (keyword.isEmpty) {
+        filteredEvents = events;
+      } else {
+        filteredEvents = events.where((e) {
+          final title = (e['title'] ?? '').toString().toLowerCase();
+          final location = (e['location'] ?? '').toString().toLowerCase();
+          return title.contains(keyword) || location.contains(keyword);
+        }).toList();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    searchCtrl.dispose();
+    super.dispose();
   }
 
   @override
@@ -64,8 +86,8 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: Text(
-          "Eventick",
+        title: const Text(
+          'Eventick',
           style: TextStyle(
             color: Colors.black87,
             fontWeight: FontWeight.bold,
@@ -78,9 +100,7 @@ class _HomeScreenState extends State<HomeScreen> {
               radius: 42,
               backgroundImage: AssetImage('assets/images/avatar/user.png'),
             ),
-            onPressed: () {
-              Get.to(() => const ProfileScreen());
-            },
+            onPressed: () => Get.to(() => const ProfileScreen()),
           ),
           const SizedBox(width: 8),
         ],
@@ -90,9 +110,8 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Welcome
             Text(
-              "Xin chào, $userName!",
+              'Xin chào, $userName!',
               style: const TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
@@ -100,91 +119,74 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             const Text(
-              "Hãy khám phá những sự kiện tuyệt vời!",
+              'Hãy khám phá những sự kiện tuyệt vời!',
               style: TextStyle(fontSize: 16, color: Colors.grey),
             ),
             const SizedBox(height: 24),
-
-            TextField(
-              decoration: InputDecoration(
-                hintText: "Tìm kiếm sự kiện...",
-                prefixIcon: Icon(Icons.search, color: Colors.grey[600]),
-                filled: true,
-                fillColor: Colors.white,
-                contentPadding: const EdgeInsets.symmetric(vertical: 15),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30),
-                  borderSide: BorderSide.none,
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: searchCtrl,
+                    onSubmitted: (_) => _performSearch(),
+                    decoration: InputDecoration(
+                      hintText: 'Tìm kiếm sự kiện...',
+                      prefixIcon: Icon(Icons.search, color: Colors.grey[600]),
+                      filled: true,
+                      fillColor: Colors.white,
+                      contentPadding: const EdgeInsets.symmetric(vertical: 15),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
+                const SizedBox(width: 8),
+                ElevatedButton(
+                  onPressed: _performSearch,
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                    backgroundColor: Colors.deepPurple,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  ),
+                  child: const Text('Tìm'),
+                ),
+              ],
             ),
             const SizedBox(height: 24),
-
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildAction(
-                  icon: Icons.event_available,
-                  label: "Mua vé",
-                  onTap: () => Get.toNamed(AppRoutes.events),
-                ),
-                _buildAction(
-                  icon: Icons.confirmation_number,
-                  label: "Vé của tôi",
-                  onTap: () => Get.toNamed(AppRoutes.myTickets),
-                ),
-                _buildAction(
-                  icon: Icons.list_alt,
-                  label: "Sự kiện",
-                  onTap: () => Get.toNamed(AppRoutes.events),
-                ),
+                _buildAction(icon: Icons.event_available, label: 'Mua vé', onTap: () => Get.toNamed(AppRoutes.events)),
+                _buildAction(icon: Icons.confirmation_number, label: 'Vé của tôi', onTap: () => Get.toNamed(AppRoutes.myTickets)),
+                _buildAction(icon: Icons.list_alt, label: 'Sự kiện', onTap: () => Get.toNamed(AppRoutes.events)),
               ],
             ),
-
             const SizedBox(height: 30),
-
-            // Event section header - Nâng cấp mới
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  "Sự kiện nổi bật",
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                TextButton(
-                  onPressed: () => Get.toNamed(AppRoutes.events),
-                  child: const Text(
-                    "Xem tất cả",
-                    style: TextStyle(color: Colors.deepPurple),
-                  ),
-                ),
+                const Text('Sự kiện nổi bật', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                TextButton(onPressed: () => Get.toNamed(AppRoutes.events), child: const Text('Xem tất cả', style: TextStyle(color: Colors.deepPurple))),
               ],
             ),
             const SizedBox(height: 12),
-
-            // Event list
             if (isLoading)
               const Center(child: CircularProgressIndicator())
-            else if (events.isEmpty)
+            else if (filteredEvents.isEmpty)
               const Center(
                 child: Padding(
                   padding: EdgeInsets.all(20.0),
-                  child: Text(
-                    "Không có sự kiện nào sắp diễn ra.",
-                    style: TextStyle(fontSize: 16, color: Colors.grey),
-                  ),
+                  child: Text('Không có sự kiện phù hợp.', style: TextStyle(fontSize: 16, color: Colors.grey)),
                 ),
               )
             else
               ListView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                itemCount: events.length,
-                itemBuilder: (context, index) {
-                  final event = events[index];
-                  // Sử dụng widget card mới
-                  return _buildEventCard(event);
-                },
+                itemCount: filteredEvents.length,
+                itemBuilder: (context, index) => _buildEventCard(filteredEvents[index]),
               ),
           ],
         ),
@@ -192,22 +194,13 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Widget cho các hành động nhanh (Giữ nguyên thiết kế gốc vì đã đẹp)
-  Widget _buildAction({
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-  }) {
+  Widget _buildAction({required IconData icon, required String label, required VoidCallback onTap}) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
       child: Column(
         children: [
-          CircleAvatar(
-            radius: 28,
-            backgroundColor: Colors.deepPurple.shade100,
-            child: Icon(icon, size: 28, color: Colors.deepPurple),
-          ),
+          CircleAvatar(radius: 28, backgroundColor: Colors.deepPurple.shade100, child: Icon(icon, size: 28, color: Colors.deepPurple)),
           const SizedBox(height: 8),
           Text(label, style: const TextStyle(fontSize: 14)),
         ],
@@ -217,7 +210,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildEventCard(Map<String, dynamic> event) {
     final location = event['location'] ?? 'Chưa xác định';
-    final date = event["startTime"] ?? event["date"] ?? "N/A";
+    final date = event['startTime'] ?? event['date'] ?? 'N/A';
 
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -236,34 +229,19 @@ class _HomeScreenState extends State<HomeScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             ClipRRect(
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(16),
-                topRight: Radius.circular(16),
-              ),
-              child: Image.asset(
-                "assets/images/events/event.png",
-                height: 150,
-                fit: BoxFit.cover,
-              ),
+              borderRadius: const BorderRadius.only(topLeft: Radius.circular(16), topRight: Radius.circular(16)),
+              child: Image.asset('assets/images/events/event.png', height: 150, fit: BoxFit.cover),
             ),
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    event["title"] ?? "Không có tiêu đề",
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
+                  Text(event['title'] ?? 'Không có tiêu đề', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold), maxLines: 2, overflow: TextOverflow.ellipsis),
                   const SizedBox(height: 8),
-                  _buildInfoRow(Icons.calendar_today, date),
+                  _buildInfoRow(Icons.calendar_today, date.toString()),
                   const SizedBox(height: 4),
-                  _buildInfoRow(Icons.location_on, location),
+                  _buildInfoRow(Icons.location_on, location.toString()),
                 ],
               ),
             ),
@@ -273,19 +251,12 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Widget phụ trợ cho Event Card - Nâng cấp mới
   Widget _buildInfoRow(IconData icon, String text) {
     return Row(
       children: [
         Icon(icon, color: Colors.grey[600], size: 16),
         const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            text,
-            style: TextStyle(fontSize: 14, color: Colors.grey[800]),
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
+        Expanded(child: Text(text, style: TextStyle(fontSize: 14, color: Colors.grey[800]), overflow: TextOverflow.ellipsis)),
       ],
     );
   }

@@ -78,6 +78,28 @@ class CheckoutService {
     return (order, payment, issuedTickets);
   }
 
+
+  static bool hasActiveTicketForEvent(int eventId) {
+    return getTickets().any((t) => t.eventId == eventId && t.status == 'active');
+  }
+
+  static Future<void> cancelTicketsForEvent(int eventId) async {
+    final updated = getTickets()
+        .map((t) => t.eventId == eventId ? Ticket(
+              id: t.id,
+              orderId: t.orderId,
+              eventId: t.eventId,
+              eventTitle: t.eventTitle,
+              holderName: t.holderName,
+              seatLabel: t.seatLabel,
+              qrPayload: t.qrPayload,
+              status: 'cancelled',
+              issuedAt: t.issuedAt,
+            ) : t)
+        .toList();
+    await _box.write(_ticketsKey, updated.map((e) => e.toJson()).toList());
+  }
+
   static List<Order> getOrders() {
     final raw = _box.read(_ordersKey);
     if (raw is! List) return [];

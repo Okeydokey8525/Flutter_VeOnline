@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:event_ticket_app/features/profile/screen/change_email_screen.dart';
+import 'package:event_ticket_app/core/app_routes.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -200,7 +201,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   children: [
                     _buildProfileMenuItem(
                       icon: Icons.edit_outlined,
-                      title: "Chỉnh sửa hồ sơ",
+                      title: "Thay đổi tên người dùng",
                       onTap: () {
                         Navigator.push(
                           context,
@@ -225,7 +226,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     _buildProfileMenuItem(
                       icon: Icons.event_note_outlined,
                       title: "Sự kiện của tôi",
-                      onTap: () {},
+                      onTap: () {
+                        Get.toNamed(AppRoutes.myTickets);
+                      },
                     ),
                     _buildProfileMenuItem(
                       icon: Icons.settings_outlined,

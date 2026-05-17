@@ -9,7 +9,6 @@ class Ticket {
   final String status;
   final DateTime issuedAt;
 
-
   const Ticket({
     required this.id,
     required this.orderId,
