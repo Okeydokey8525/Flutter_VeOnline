@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:event_ticket_app/core/theme/app_tokens.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:event_ticket_app/features/profile/screen/change_email_screen.dart';
+import 'package:event_ticket_app/core/app_routes.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -74,9 +76,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 child: Row(
                   children: [
-                    const CircleAvatar(
-                      radius: 32,
-                      backgroundImage: AssetImage('assets/images/avatar/user.png'),
+                    _buildProfileMenuItem(
+                      icon: Icons.edit_outlined,
+                      title: "Thay đổi tên người dùng",
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const ChangeEmailScreen(),
+                          ),
+                        );
+                      },
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -87,13 +97,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             (user['username'] ?? box.read('userName') ?? 'Người dùng').toString(),
                             style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                           ),
-                          const SizedBox(height: 4),
-                          Text(
-                            (user['email'] ?? 'Không có email').toString(),
-                            style: const TextStyle(color: Colors.white70),
-                          ),
-                        ],
-                      ),
+                        );
+                      },
+                    ),
+                    _buildProfileMenuItem(
+                      icon: Icons.event_note_outlined,
+                      title: "Sự kiện của tôi",
+                      onTap: () {
+                        Get.toNamed(AppRoutes.myTickets);
+                      },
+                    ),
+                    _buildProfileMenuItem(
+                      icon: Icons.settings_outlined,
+                      title: "Cài đặt",
+                      onTap: () {},
+                    ),
+                    _buildProfileMenuItem(
+                      icon: Icons.logout,
+                      title: "Đăng xuất",
+                      isLogout: true,
+                      onTap: () {
+                        // Xóa token và dữ liệu người dùng khi đăng xuất
+                        box.remove("accessToken");
+                        box.remove("userName");
+                        box.remove("role");
+                        Get.offAll(() => const LoginScreen());
+                      },
                     ),
                   ],
                 ),

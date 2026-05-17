@@ -1,6 +1,5 @@
 import 'package:event_ticket_app/features/commerce/services/checkout_service.dart';
 import 'package:flutter/material.dart';
-import 'package:event_ticket_app/core/theme/app_tokens.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 class MyTicketsScreen extends StatefulWidget {
@@ -27,13 +26,13 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> {
                 ],
               )
             : ListView.builder(
-                padding: const EdgeInsets.all(AppSpacing.lg),
+                padding: const EdgeInsets.all(16),
                 itemCount: tickets.length,
                 itemBuilder: (context, index) {
                   final ticket = tickets[index];
                   return Card(
                     elevation: 3,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadii.lg)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                     margin: const EdgeInsets.only(bottom: 16),
                     child: Padding(
                       padding: const EdgeInsets.all(14),
@@ -42,7 +41,7 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> {
                         children: [
                           Row(
                             children: [
-                              const Icon(Icons.confirmation_number, color: AppColors.primary),
+                              const Icon(Icons.confirmation_number, color: Colors.deepPurple),
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:event_ticket_app/core/theme/app_tokens.dart';
 import 'package:get/get.dart';
 
 import '../models/order.dart';
@@ -24,20 +23,20 @@ class PaymentStatusScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Kết quả thanh toán')),
       body: Padding(
-        padding: const EdgeInsets.all(AppSpacing.lg),
+        padding: const EdgeInsets.all(16),
         child: Column(
           children: [
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: success ? const Color(0xFFE8F5FF) : const Color(0xFFFFEBEE),
-                borderRadius: BorderRadius.circular(AppRadii.lg),
+                color: success ? Colors.green.shade50 : Colors.red.shade50,
+                borderRadius: BorderRadius.circular(16),
               ),
               child: Column(
                 children: [
                   Icon(success ? Icons.check_circle : Icons.cancel,
-                      color: success ? AppColors.primary : Colors.red, size: 72),
+                      color: success ? Colors.green : Colors.red, size: 72),
                   const SizedBox(height: 8),
                   Text(success ? 'Thanh toán thành công' : 'Thanh toán thất bại',
                       style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),

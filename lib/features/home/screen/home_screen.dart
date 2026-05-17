@@ -9,6 +9,7 @@ import 'package:http/http.dart' as http;
 import '../../../core/app_routes.dart';
 import '../../events/screens/event_detail_screen.dart';
 import '../../profile/screen/profile_screen.dart';
+import '../../events/screens/event_detail_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -147,7 +148,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   onPressed: _performSearch,
                   style: ElevatedButton.styleFrom(
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                    backgroundColor: AppColors.primary,
+                    backgroundColor: Colors.deepPurple,
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                   ),
                   child: const Text('Tìm'),
@@ -168,7 +169,7 @@ class _HomeScreenState extends State<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text('Sự kiện nổi bật', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                TextButton(onPressed: () => Get.toNamed(AppRoutes.events), child: const Text('Xem tất cả', style: TextStyle(color: AppColors.primary))),
+                TextButton(onPressed: () => Get.toNamed(AppRoutes.events), child: const Text('Xem tất cả', style: TextStyle(color: Colors.deepPurple))),
               ],
             ),
             const SizedBox(height: 12),
@@ -200,7 +201,7 @@ class _HomeScreenState extends State<HomeScreen> {
       borderRadius: BorderRadius.circular(12),
       child: Column(
         children: [
-          CircleAvatar(radius: 28, backgroundColor: const Color(0xFFDCEBFF), child: Icon(icon, size: 28, color: AppColors.primary)),
+          CircleAvatar(radius: 28, backgroundColor: Colors.deepPurple.shade100, child: Icon(icon, size: 28, color: Colors.deepPurple)),
           const SizedBox(height: 8),
           Text(label, style: const TextStyle(fontSize: 14)),
         ],
@@ -218,7 +219,7 @@ class _HomeScreenState extends State<HomeScreen> {
       shadowColor: AppColors.primary.withValues(alpha: 0.1),
       margin: const EdgeInsets.symmetric(vertical: 10),
       child: InkWell(
-        borderRadius: BorderRadius.circular(AppRadii.lg),
+        borderRadius: BorderRadius.circular(16),
         onTap: () {
           final eventId = int.tryParse(event['id']?.toString() ?? '');
           if (eventId == null) return;

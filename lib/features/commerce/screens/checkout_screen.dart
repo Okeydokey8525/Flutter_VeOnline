@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:event_ticket_app/core/theme/app_tokens.dart';
 import 'package:get_storage/get_storage.dart';
 
 import '../services/checkout_service.dart';
@@ -58,18 +57,18 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFFF8FBFF), Colors.white],
+            colors: [Color(0xFFF6F0FF), Colors.white],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
         ),
         child: ListView(
-          padding: const EdgeInsets.all(AppSpacing.lg),
+          padding: const EdgeInsets.all(16),
           children: [
             Card(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadii.lg)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               child: Padding(
-                padding: const EdgeInsets.all(AppSpacing.lg),
+                padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -97,9 +96,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             ),
             const SizedBox(height: 12),
             Card(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadii.lg)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               child: Padding(
-                padding: const EdgeInsets.all(AppSpacing.lg),
+                padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -124,10 +123,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             ),
             const SizedBox(height: 12),
             Card(
-              color: AppColors.infoSoft,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadii.lg)),
+              color: Colors.deepPurple.shade50,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               child: Padding(
-                padding: const EdgeInsets.all(AppSpacing.lg),
+                padding: const EdgeInsets.all(16),
                 child: Column(
                   children: [
                     _row('Đơn giá', '${unitPrice.toStringAsFixed(0)} VND'),
@@ -142,7 +141,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             SizedBox(
               height: 52,
               child: ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.deepPurple),
                 onPressed: isLoading ? null : _pay,
                 icon: isLoading
                     ? const SizedBox(
