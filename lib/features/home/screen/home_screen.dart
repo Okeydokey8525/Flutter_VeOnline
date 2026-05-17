@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import '../../../core/app_routes.dart';
 import '../../events/screens/event_detail_screen.dart';
 import '../../profile/screen/profile_screen.dart';
+import '../../events/screens/event_detail_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
