@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:event_ticket_app/features/events/screens/event_user_buttons.dart';
 import 'package:flutter/material.dart';
+import 'package:event_ticket_app/core/theme/app_tokens.dart';
 import 'package:http/http.dart' as http;
 import 'package:get_storage/get_storage.dart';
 import 'package:event_ticket_app/features/events/eventmembers/event_members_list.dart';
@@ -229,7 +230,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
             child: const Text('Hủy'),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFDC2626)),
             onPressed: () => Navigator.pop(ctx, true),
             child: const Text('Xóa'),
           ),
@@ -285,7 +286,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(AppSpacing.lg),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -299,7 +300,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                         const SizedBox(height: 12),
                         Row(
                           children: [
-                            const Icon(Icons.location_on, color: Colors.red),
+                            const Icon(Icons.location_on, color: Color(0xFF0D6EFD)),
                             const SizedBox(width: 6),
                             Expanded(
                               child: Text(
@@ -314,7 +315,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                           children: [
                             const Icon(
                               Icons.calendar_today,
-                              color: Colors.deepPurple,
+                              color: AppColors.primary,
                             ),
                             const SizedBox(width: 6),
                             Text(
@@ -328,7 +329,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                           children: [
                             const Icon(
                               Icons.event_available,
-                              color: Colors.green,
+                              color: AppColors.primary,
                             ),
                             const SizedBox(width: 6),
                             Text(
@@ -337,7 +338,13 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                             ),
                           ],
                         ),
-                        const Divider(height: 30),
+                        const SizedBox(height: 16),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          decoration: BoxDecoration(color: AppColors.infoSoft, borderRadius: BorderRadius.circular(999)),
+                          child: const Text('SaaS Event Detail', style: TextStyle(color: Color(0xFF0D6EFD), fontWeight: FontWeight.w600)),
+                        ),
+                        const SizedBox(height: 12),
                         const Text(
                           'Mô tả',
                           style: TextStyle(
@@ -352,7 +359,11 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                         ),
                         const SizedBox(height: 20),
                         EventMembersList(eventId: widget.eventId),
-                        if (isUser) EventUserButtons(eventId: widget.eventId),
+                        if (isUser)
+                          EventUserButtons(
+                            eventId: widget.eventId,
+                            eventTitle: (event!['title'] ?? 'Sự kiện').toString(),
+                          ),
                       ],
                     ),
                   ),
