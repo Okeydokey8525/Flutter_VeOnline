@@ -1,8 +1,10 @@
-// Import service mới và các thư viện cần thiết
+import 'package:event_ticket_app/core/app_routes.dart';
 import 'package:event_ticket_app/features/auth/screens/login_screen.dart';
+import 'package:event_ticket_app/features/profile/screen/change_email_screen.dart';
 import 'package:event_ticket_app/features/profile/screen/change_password_screen.dart';
 import 'package:event_ticket_app/features/profile/services/profile_service.dart';
 import 'package:flutter/material.dart';
+import 'package:event_ticket_app/core/theme/app_tokens.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:event_ticket_app/features/profile/screen/change_email_screen.dart';
@@ -26,16 +28,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _loadProfile() {
-    final token = box.read("accessToken");
-
+    final token = box.read('accessToken');
     if (token == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Get.offAll(() => const LoginScreen());
       });
     } else {
-      setState(() {
-        _futureProfile = ProfileService.getProfile();
-      });
+      setState(() => _futureProfile = ProfileService.getProfile());
     }
   }
 
@@ -44,160 +43,38 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (_futureProfile == null) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
+
     return Scaffold(
-      backgroundColor: Colors.grey[100],
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Stack(
-              clipBehavior: Clip.none,
-              alignment: Alignment.center,
-              children: [
-                Container(
-                  height: 220,
-                  width: double.infinity,
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Colors.deepPurple, Colors.purpleAccent],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.vertical(
-                      bottom: Radius.elliptical(200, 60),
-                    ),
-                  ),
-                ),
-                Positioned(
-                  top: 40,
-                  left: 10,
-                  child: IconButton(
-                    icon: const Icon(
-                      Icons.arrow_back_ios_new,
-                      color: Colors.white,
-                    ),
-                    onPressed: () => Get.back(),
-                  ),
-                ),
-                Positioned(
-                  top: 130,
-                  child: Column(
-                    children: [
-                      const CircleAvatar(
-                        radius: 55,
-                        backgroundColor: Colors.white,
-                        child: CircleAvatar(
-                          radius: 52,
-                          backgroundImage: AssetImage(
-                            'assets/images/avatar/user.png',
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
+      backgroundColor: AppColors.bg,
+      appBar: AppBar(
+        title: const Text('Thông tin cá nhân'),
+        centerTitle: true,
+      ),
+      body: FutureBuilder<Map<String, dynamic>>(
+        future: _futureProfile,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return Center(child: Text('Lỗi: ${snapshot.error}'));
+          }
 
-                      // Dùng FutureBuilder để xây dựng UI từ kết quả API
-                      FutureBuilder<Map<String, dynamic>>(
-                        future: _futureProfile,
-                        builder: (context, snapshot) {
-                          // Khi đang chờ dữ liệu
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return const Column(
-                              children: [
-                                Text(
-                                  "Đang tải...",
-                                  style: TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                SizedBox(height: 4),
-                                CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.deepPurple,
-                                ),
-                              ],
-                            );
-                          }
-                          // Khi có lỗi xảy ra
-                          if (snapshot.hasError) {
-                            return Text(
-                              "Lỗi: ${snapshot.error}",
-                              style: const TextStyle(
-                                color: Colors.red,
-                                fontSize: 16,
-                              ),
-                            );
-                          }
-                          // Khi có dữ liệu thành công
-                          if (snapshot.hasData) {
-                            final user = snapshot.data!;
-                            return Column(
-                              children: [
-                                Text(
-                                  user['username'] ?? 'Người dùng',
-                                  style: const TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black87,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  user['email'] ?? 'Không có email',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.grey[600],
-                                  ),
-                                ),
-                              ],
-                            );
-                          }
-                          // Trạng thái mặc định
-                          return const Text("Không có dữ liệu");
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 120),
-
-            // --- STATS SECTION (Giữ nguyên) ---
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _buildStat("Sự kiện", "12"),
-                  _buildStatDivider(),
-                  _buildStat("Sắp diễn ra", "3"),
-                  _buildStatDivider(),
-                  _buildStat("Theo dõi", "120"),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            // --- MENU ACTIONS SECTION (Giữ nguyên) ---
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Container(
-                padding: const EdgeInsets.all(10),
+          final user = snapshot.data ?? {};
+          return ListView(
+            padding: const EdgeInsets.all(AppSpacing.lg),
+            children: [
+              Container(
+                padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF0D6EFD), Color(0xFF38BDF8)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
                   borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withValues(alpha: 0.1),
-                      spreadRadius: 2,
-                      blurRadius: 10,
-                    ),
-                  ],
                 ),
-                child: Column(
+                child: Row(
                   children: [
                     _buildProfileMenuItem(
                       icon: Icons.edit_outlined,
@@ -211,14 +88,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         );
                       },
                     ),
-                    _buildProfileMenuItem(
-                      icon: Icons.edit_outlined,
-                      title: "Thay đổi mật khẩu",
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const ChangePasswordScreen(),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            (user['username'] ?? box.read('userName') ?? 'Người dùng').toString(),
+                            style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                           ),
                         );
                       },
@@ -250,53 +127,60 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ],
                 ),
               ),
-            ),
-            const SizedBox(height: 20),
-          ],
-        ),
+              const SizedBox(height: 16),
+              _menuCard(
+                icon: Icons.person_outline,
+                title: 'Thay đổi tên người dùng',
+                onTap: () async {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const ChangeEmailScreen()),
+                  );
+                  _loadProfile();
+                },
+              ),
+              _menuCard(
+                icon: Icons.lock_outline,
+                title: 'Thay đổi mật khẩu',
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const ChangePasswordScreen()),
+                ),
+              ),
+              _menuCard(
+                icon: Icons.confirmation_number_outlined,
+                title: 'Sự kiện của tôi',
+                onTap: () => Get.toNamed(AppRoutes.myTickets),
+              ),
+              _menuCard(
+                icon: Icons.logout,
+                title: 'Đăng xuất',
+                danger: true,
+                onTap: () {
+                  box.remove('accessToken');
+                  box.remove('userName');
+                  box.remove('role');
+                  Get.offAll(() => const LoginScreen());
+                },
+              ),
+            ],
+          );
+        },
       ),
     );
   }
 
-  Widget _buildStat(String title, String value) {
-    return Column(
-      children: [
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-            color: Colors.deepPurple,
-          ),
+  Widget _menuCard({required IconData icon, required String title, required VoidCallback onTap, bool danger = false}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Card(
+        child: ListTile(
+          onTap: onTap,
+          leading: Icon(icon, color: danger ? Colors.red : AppColors.primary),
+          title: Text(title, style: TextStyle(color: danger ? Colors.red : AppColors.textPrimary, fontWeight: FontWeight.w600)),
+          trailing: Icon(Icons.chevron_right, color: Colors.grey.shade500),
         ),
-        const SizedBox(height: 5),
-        Text(title, style: TextStyle(fontSize: 14, color: Colors.grey[600])),
-      ],
-    );
-  }
-
-  Widget _buildStatDivider() {
-    return Container(height: 40, width: 1, color: Colors.grey[200]);
-  }
-
-  Widget _buildProfileMenuItem({
-    required IconData icon,
-    required String title,
-    required VoidCallback onTap,
-    bool isLogout = false,
-  }) {
-    final color = isLogout ? Colors.redAccent : Colors.grey[700];
-
-    return ListTile(
-      onTap: onTap,
-      leading: Icon(icon, color: color),
-      title: Text(
-        title,
-        style: TextStyle(fontWeight: FontWeight.w500, color: color),
       ),
-      trailing: isLogout
-          ? null
-          : Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey[400]),
     );
   }
 }

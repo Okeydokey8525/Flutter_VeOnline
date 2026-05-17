@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:event_ticket_app/core/theme/app_tokens.dart';
 import 'package:get_storage/get_storage.dart';
-import '../services/event_service.dart';
+
 import '../model/event.dart';
-import 'event_detail_screen.dart';
+import '../services/event_service.dart';
 import 'event_create_screen.dart';
+import 'event_detail_screen.dart';
 
 class EventListScreen extends StatefulWidget {
   const EventListScreen({super.key});
@@ -21,70 +23,22 @@ class _EventListScreenState extends State<EventListScreen> {
     _loadEvents();
   }
 
-  void _loadEvents() {
-    setState(() {
-      _futureEvents = EventService.getEvents();
-    });
-  }
-
-  Future<void> _deleteEvent(Event event) async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text("Xóa sự kiện"),
-        content: const Text("Bạn có chắc muốn xóa sự kiện này không?"),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text("Hủy"),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text("Xóa"),
-          ),
-        ],
-      ),
-    );
-
-    if (confirm == true) {
-      final success = await EventService.deleteEvent(event.id!);
-      if (success) {
-        if (!mounted) return;
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text("✅ Xóa thành công")));
-        _loadEvents(); // refresh list
-      } else {
-        if (!mounted) return;
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text("❌ Xóa thất bại")));
-      }
-    }
-  }
+  void _loadEvents() => setState(() => _futureEvents = EventService.getEvents());
 
   @override
   Widget build(BuildContext context) {
-    final box = GetStorage();
-    final userRole = box.read("role") ?? "User";
+    final userRole = (GetStorage().read('role') ?? 'User').toString().toLowerCase();
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Events"),
+        title: const Text('Sự kiện'),
         actions: [
-          if (userRole.toString().toLowerCase() ==
-              "organizer") // chỉ organizer mới tạo được sự kiện
+          if (userRole == 'organizer')
             IconButton(
               icon: const Icon(Icons.add),
               onPressed: () async {
-                final created = await Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const EventCreateScreen()),
-                );
-                if (created == true) {
-                  _loadEvents();
-                }
+                final created = await Navigator.push(context, MaterialPageRoute(builder: (_) => const EventCreateScreen()));
+                if (created == true) _loadEvents();
               },
             ),
         ],
@@ -96,58 +50,67 @@ class _EventListScreenState extends State<EventListScreen> {
             return const Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasError) {
-            return Center(child: Text("❌ Error: ${snapshot.error}"));
+            return _stateBox(Icons.error_outline, 'Không thể tải danh sách sự kiện', '${snapshot.error}');
           }
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text("Không có sự kiện nào"));
+            return _stateBox(Icons.event_busy, 'Chưa có sự kiện nào', 'Hãy quay lại sau hoặc tạo sự kiện mới.');
           }
 
           final events = snapshot.data!;
-          return ListView.builder(
+          return ListView.separated(
+            padding: const EdgeInsets.all(AppSpacing.lg),
             itemCount: events.length,
+            separatorBuilder: (_, __) => const SizedBox(height: 10),
             itemBuilder: (context, index) {
-              final event = events[index];
+              final e = events[index];
+              final date = e.startTime.toString().split(' ').first;
               return Card(
-                margin: const EdgeInsets.all(8),
                 child: ListTile(
-                  title: Text(event.title),
-                  subtitle: Text("📍 ${event.location}"),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        event.startTime.toString().substring(0, 10),
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey,
-                        ),
-                      ),
-                      if (userRole.toString().toLowerCase() == "organizer")
-                        IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.red),
-                          onPressed: () => _deleteEvent(event),
-                        ),
-                    ],
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  leading: Container(
+                    width: 46,
+                    height: 46,
+                    decoration: BoxDecoration(color: AppColors.infoSoft, borderRadius: BorderRadius.circular(12)),
+                    child: const Icon(Icons.event, color: Color(0xFF0D6EFD)),
                   ),
-                  onTap: () async {
-                    final result = await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => EventDetailScreen(
-                          eventId: event.id!,
-                          userRole: userRole,
-                        ),
-                      ),
-                    );
-                    if (result == true) {
-                      _loadEvents();
-                    }
-                  },
+                  title: Text(e.title, style: const TextStyle(fontWeight: FontWeight.w700)),
+                  subtitle: Text('📍 ${e.location}\n$date'),
+                  isThreeLine: true,
+                  trailing: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: AppColors.infoSoft,
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: const Text('Chi tiết', style: TextStyle(color: Color(0xFF0D6EFD), fontWeight: FontWeight.w600)),
+                  ),
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => EventDetailScreen(eventId: e.id!, userRole: userRole)),
+                  ).then((_) => _loadEvents()),
                 ),
               );
             },
           );
         },
+      ),
+    );
+  }
+
+  Widget _stateBox(IconData icon, String title, String subtitle) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 56, color: const Color(0xFF94A3B8)),
+            const SizedBox(height: 12),
+            Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+            const SizedBox(height: 6),
+            Text(subtitle, style: const TextStyle(color: AppColors.textSecondary), textAlign: TextAlign.center),
+          ],
+        ),
       ),
     );
   }
