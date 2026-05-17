@@ -1,7 +1,3 @@
-import 'package:event_ticket_app/features/commerce/services/checkout_service.dart';
-import 'package:flutter/material.dart';
-import 'package:qr_flutter/qr_flutter.dart';
-
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -16,7 +12,6 @@ class MyTicketsScreen extends StatefulWidget {
 }
 
 class _MyTicketsScreenState extends State<MyTicketsScreen> {
-  bool isLoading = true;
   final box = GetStorage();
   bool isLoading = true;
   String? errorMessage;
@@ -25,10 +20,7 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(milliseconds: 200), () {
-      if (!mounted) return;
-      setState(() => isLoading = false);
-    });
+    fetchMyTickets();
   }
 
   Future<void> _refresh() async {
@@ -86,112 +78,63 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final tickets = CheckoutService.getTickets();
-
     return Scaffold(
       appBar: AppBar(title: const Text('Vé của tôi')),
-      body: RefreshIndicator(
-        onRefresh: _refresh,
-        child: isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : tickets.isEmpty
-                ? ListView(
-                    children: const [
-                      SizedBox(height: 120),
-                      Center(child: Text('Bạn chưa có e-ticket nào.')),
-                    ],
-                  )
-                : ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: tickets.length,
-                    itemBuilder: (context, index) {
-                      final ticket = tickets[index];
-                      return Card(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        child: Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(ticket.eventTitle,
-                                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                              const SizedBox(height: 6),
-                              Text('Mã vé: ${ticket.id}'),
-                              Text('Mã đơn: ${ticket.orderId}'),
-                              Text('Người giữ vé: ${ticket.holderName}'),
-                              Text('Ghế/Khu vực: ${ticket.seatLabel}'),
-                              Text('Trạng thái: ${ticket.status}'),
-                              const SizedBox(height: 10),
-                              Center(
-                                child: QrImageView(
-                                  data: ticket.qrPayload,
-                                  size: 150,
-                                  version: QrVersions.auto,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Vé của tôi'),
-      ),
       body: RefreshIndicator(
         onRefresh: fetchMyTickets,
         child: isLoading
             ? const Center(child: CircularProgressIndicator())
             : errorMessage != null
-                ? ListView(
-                    padding: const EdgeInsets.all(16),
-                    children: [
-                      Text(
-                        errorMessage!,
-                        style: const TextStyle(color: Colors.redAccent),
-                      ),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: fetchMyTickets,
-                        child: const Text('Thử lại'),
-                      ),
-                    ],
-                  )
-                : tickets.isEmpty
-                    ? ListView(
-                        children: const [
-                          SizedBox(height: 120),
-                          Center(
-                            child: Text(
-                              'Bạn chưa đặt vé sự kiện nào.',
-                              style: TextStyle(fontSize: 16),
-                            ),
-                          ),
-                        ],
-                      )
-                    : ListView.builder(
-                        padding: const EdgeInsets.all(16),
-                        itemCount: tickets.length,
-                        itemBuilder: (context, index) {
-                          final ticket = tickets[index] as Map<String, dynamic>;
-                          final title =
-                              ticket['title'] ?? ticket['eventName'] ?? 'Sự kiện';
-                          final date = ticket['date'] ?? ticket['eventDate'] ?? 'N/A';
-                          final location =
-                              ticket['location'] ?? ticket['eventLocation'] ?? 'Chưa xác định';
+            ? ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  Text(
+                    errorMessage!,
+                    style: const TextStyle(color: Colors.redAccent),
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: fetchMyTickets,
+                    child: const Text('Thử lại'),
+                  ),
+                ],
+              )
+            : tickets.isEmpty
+            ? ListView(
+                children: const [
+                  SizedBox(height: 120),
+                  Center(
+                    child: Text(
+                      'Bạn chưa đặt vé sự kiện nào.',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ),
+                ],
+              )
+            : ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: tickets.length,
+                itemBuilder: (context, index) {
+                  final ticket = tickets[index] as Map<String, dynamic>;
+                  final title =
+                      ticket['title'] ?? ticket['eventName'] ?? 'Sự kiện';
+                  final date = ticket['date'] ?? ticket['eventDate'] ?? 'N/A';
+                  final location =
+                      ticket['location'] ??
+                      ticket['eventLocation'] ??
+                      'Chưa xác định';
 
-                          return Card(
-                            margin: const EdgeInsets.only(bottom: 12),
-                            child: ListTile(
-                              leading: const Icon(Icons.confirmation_number),
-                              title: Text(title.toString()),
-                              subtitle: Text('$date\n$location'),
-                              isThreeLine: true,
-                            ),
-                          );
-                        },
-                      ),
+                  return Card(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    child: ListTile(
+                      leading: const Icon(Icons.confirmation_number),
+                      title: Text(title.toString()),
+                      subtitle: Text('$date\n$location'),
+                      isThreeLine: true,
+                    ),
+                  );
+                },
+              ),
       ),
     );
   }
