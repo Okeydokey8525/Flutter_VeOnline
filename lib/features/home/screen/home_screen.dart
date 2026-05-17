@@ -130,9 +130,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 _buildAction(
                   icon: Icons.confirmation_number,
                   label: "Vé của tôi",
-                  onTap: () {
-                    // TODO
-                  },
+                  onTap: () => Get.toNamed(AppRoutes.myTickets),
                 ),
                 _buildAction(
                   icon: Icons.list_alt,

@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 // import 'package:shared_preferences/shared_preferences.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:event_ticket_app/features/commerce/screens/checkout_screen.dart';
 
 class EventUserButtons extends StatefulWidget {
   final int eventId;
-  const EventUserButtons({super.key, required this.eventId});
+  final String eventTitle;
+  const EventUserButtons({super.key, required this.eventId, required this.eventTitle});
 
   @override
   State<EventUserButtons> createState() => _EventUserButtonsState();
@@ -70,54 +72,19 @@ class _EventUserButtonsState extends State<EventUserButtons> {
 
   // 👈 Tham gia sự kiện
   Future<void> registerEvent() async {
-    setState(() => isLoading = true);
-    try {
-      final box = GetStorage();
-      final token = box.read("accessToken") as String?;
+    final bought = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => CheckoutScreen(eventId: widget.eventId, eventTitle: widget.eventTitle),
+      ),
+    );
 
-      if (token == null || token.isEmpty) {
-        setState(() => isLoading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('⚠️ Vui lòng đăng nhập để mua vé')),
-        );
-        return;
-      }
-
-      final url = Uri.parse(
-        "http://10.0.2.2:5054/api/registrations/register-event",
+    if (bought == true) {
+      setState(() => isRegistered = true);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("✅ Mua vé thành công")),
       );
-
-      final response = await http.post(
-        url,
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer $token",
-          "Accept": "application/json",
-        },
-        body: jsonEncode({"eventId": widget.eventId}),
-      );
-
-      if (response.statusCode >= 200 && response.statusCode < 300) {
-        setState(() => isRegistered = true);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("✅ Đăng ký sự kiện thành công")),
-        );
-      } else if (response.statusCode == 400) {
-        final data = jsonDecode(response.body);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("❌ ${data["message"] ?? "Đã xảy ra lỗi"}")),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("❌ Lỗi: ${response.statusCode}")),
-        );
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("❌ Lỗi: $e")));
-    } finally {
-      setState(() => isLoading = false);
     }
   }
 
