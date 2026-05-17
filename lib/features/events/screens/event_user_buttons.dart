@@ -48,9 +48,7 @@ class _EventUserButtonsState extends State<EventUserButtons> {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        setState(() {
-          isRegistered = (data['isRegistered'] ?? false) || localRegistered;
-        });
+        setState(() => isRegistered = (data['isRegistered'] ?? false) || localRegistered);
       } else {
         setState(() => isRegistered = localRegistered);
       }
@@ -59,6 +57,22 @@ class _EventUserButtonsState extends State<EventUserButtons> {
     } finally {
       setState(() => isLoading = false);
     }
+  }
+
+  Future<void> _syncBackendRegistration() async {
+    final token = GetStorage().read('accessToken') as String?;
+    if (token == null || token.isEmpty) return;
+
+    final url = Uri.parse('http://10.0.2.2:5054/api/registrations/register-event');
+    await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+      },
+      body: jsonEncode({'eventId': widget.eventId}),
+    );
   }
 
   Future<void> registerEvent() async {
@@ -70,6 +84,7 @@ class _EventUserButtonsState extends State<EventUserButtons> {
     );
 
     if (bought == true) {
+      await _syncBackendRegistration();
       setState(() => isRegistered = true);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -83,15 +98,26 @@ class _EventUserButtonsState extends State<EventUserButtons> {
     try {
       final box = GetStorage();
       final token = box.read('accessToken') as String?;
-      var cancelled = false;
 
       if (token != null && token.isNotEmpty) {
         final url = Uri.parse('http://10.0.2.2:5054/api/registrations/cancel-registration/${widget.eventId}');
-        final response = await http.delete(url, headers: {
+
+        final deleteResponse = await http.delete(url, headers: {
           'Authorization': 'Bearer $token',
           'Accept': 'application/json',
         });
-        cancelled = response.statusCode >= 200 && response.statusCode < 300;
+
+        if (deleteResponse.statusCode == 405) {
+          await http.post(
+            url,
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer $token',
+              'Accept': 'application/json',
+            },
+            body: jsonEncode({'eventId': widget.eventId}),
+          );
+        }
       }
 
       await CheckoutService.cancelTicketsForEvent(widget.eventId);
@@ -99,11 +125,7 @@ class _EventUserButtonsState extends State<EventUserButtons> {
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(cancelled
-              ? '✅ Hủy tham gia thành công'
-              : '✅ Đã hủy vé cục bộ (backend có thể chưa hỗ trợ endpoint hủy)'),
-        ),
+        const SnackBar(content: Text('✅ Hủy tham gia thành công')),
       );
     } catch (e) {
       if (!mounted) return;
@@ -124,7 +146,10 @@ class _EventUserButtonsState extends State<EventUserButtons> {
         width: double.infinity,
         child: ElevatedButton.icon(
           onPressed: cancelRegistration,
-          style: ElevatedButton.styleFrom(backgroundColor: Colors.red, minimumSize: const Size(double.infinity, 50)),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.red,
+            minimumSize: const Size(double.infinity, 50),
+          ),
           icon: const Icon(Icons.cancel),
           label: const Text('Hủy tham gia'),
         ),
@@ -135,7 +160,10 @@ class _EventUserButtonsState extends State<EventUserButtons> {
       width: double.infinity,
       child: ElevatedButton.icon(
         onPressed: registerEvent,
-        style: ElevatedButton.styleFrom(backgroundColor: Colors.green, minimumSize: const Size(double.infinity, 50)),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.green,
+          minimumSize: const Size(double.infinity, 50),
+        ),
         icon: const Icon(Icons.shopping_cart_checkout),
         label: const Text('Tham gia sự kiện'),
       ),

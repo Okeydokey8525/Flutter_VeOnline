@@ -61,7 +61,7 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
       final newName = _newUserNameController.text.trim();
 
       final response = await http.put(
-        Uri.parse('http://10.0.2.2:5054/api/profile/username'),
+        Uri.parse('http://10.0.2.2:5054/api/profile/change-username'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',

@@ -12,7 +12,7 @@ class MyTicketsScreen extends StatefulWidget {
 class _MyTicketsScreenState extends State<MyTicketsScreen> {
   @override
   Widget build(BuildContext context) {
-    final tickets = CheckoutService.getTickets();
+    final tickets = CheckoutService.getTickets().where((t) => t.status == 'active').toList();
 
     return Scaffold(
       appBar: AppBar(title: const Text('Vé của tôi')),
@@ -22,7 +22,7 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> {
             ? ListView(
                 children: const [
                   SizedBox(height: 120),
-                  Center(child: Text('Bạn chưa có e-ticket nào. Hãy mua vé ngay!')),
+                  Center(child: Text('Bạn chưa có e-ticket đang hiệu lực. Hãy mua vé ngay!')),
                 ],
               )
             : ListView.builder(
