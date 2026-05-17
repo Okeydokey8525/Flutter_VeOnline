@@ -8,50 +8,85 @@ import '../models/ticket.dart';
 class PaymentStatusScreen extends StatelessWidget {
   final Order order;
   final Payment payment;
-  final Ticket ticket;
+  final List<Ticket> tickets;
 
   const PaymentStatusScreen({
     super.key,
     required this.order,
     required this.payment,
-    required this.ticket,
+    required this.tickets,
   });
 
   @override
   Widget build(BuildContext context) {
     final success = payment.status == 'paid';
     return Scaffold(
-      appBar: AppBar(title: const Text('Trạng thái thanh toán')),
+      appBar: AppBar(title: const Text('Kết quả thanh toán')),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Icon(
-              success ? Icons.check_circle : Icons.error,
-              size: 80,
-              color: success ? Colors.green : Colors.red,
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: success ? Colors.green.shade50 : Colors.red.shade50,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Column(
+                children: [
+                  Icon(success ? Icons.check_circle : Icons.cancel,
+                      color: success ? Colors.green : Colors.red, size: 72),
+                  const SizedBox(height: 8),
+                  Text(success ? 'Thanh toán thành công' : 'Thanh toán thất bại',
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+                  const SizedBox(height: 8),
+                  Text('Bạn đã nhận ${tickets.length} e-ticket.'),
+                ],
+              ),
             ),
-            const SizedBox(height: 12),
-            Text(
-              success ? 'Thanh toán thành công' : 'Thanh toán thất bại',
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            const SizedBox(height: 16),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(14),
+                child: Column(
+                  children: [
+                    _line('Mã đơn hàng', order.id),
+                    _line('Mã giao dịch', payment.id),
+                    _line('Phương thức', payment.method),
+                    _line('Sự kiện', order.eventTitle),
+                    _line('Tổng tiền', '${order.totalAmount.toStringAsFixed(0)} ${order.currency}', bold: true),
+                  ],
+                ),
+              ),
             ),
-            const SizedBox(height: 20),
-            Text('Mã đơn: ${order.id}'),
-            Text('Mã thanh toán: ${payment.id}'),
-            Text('Mã vé: ${ticket.id}'),
-            Text('Sự kiện: ${order.eventTitle}'),
-            Text('Tổng tiền: ${order.totalAmount.toStringAsFixed(0)} ${order.currency}'),
             const Spacer(),
-            ElevatedButton(
-              onPressed: () => Get.back(result: success),
-              child: const Text('Hoàn tất'),
+            SizedBox(
+              width: double.infinity,
+              height: 48,
+              child: ElevatedButton(
+                onPressed: () => Get.back(result: success),
+                child: const Text('Về trang trước'),
+              ),
             ),
           ],
         ),
       ),
     );
   }
+
+  Widget _line(String k, String v, {bool bold = false}) => Padding(
+    padding: const EdgeInsets.symmetric(vertical: 4),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(k),
+        Expanded(
+          child: Text(v,
+              textAlign: TextAlign.right,
+              style: TextStyle(fontWeight: bold ? FontWeight.bold : FontWeight.w500)),
+        ),
+      ],
+    ),
+  );
 }

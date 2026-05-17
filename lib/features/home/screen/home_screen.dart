@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:get_storage/get_storage.dart';
 import '../../../core/app_routes.dart';
 import '../../profile/screen/profile_screen.dart';
+import '../../events/screens/event_detail_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -216,7 +217,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildEventCard(Map<String, dynamic> event) {
     final location = event['location'] ?? 'Chưa xác định';
-    final date = event["date"] ?? "N/A";
+    final date = event["startTime"] ?? event["date"] ?? "N/A";
 
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -225,7 +226,12 @@ class _HomeScreenState extends State<HomeScreen> {
       margin: const EdgeInsets.symmetric(vertical: 10),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
-        onTap: () {},
+        onTap: () {
+          final eventId = int.tryParse(event['id']?.toString() ?? '');
+          if (eventId == null) return;
+          final role = box.read('role')?.toString();
+          Get.to(() => EventDetailScreen(eventId: eventId, userRole: role));
+        },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [

@@ -12,7 +12,7 @@ class CheckoutService {
 
   static final _box = GetStorage();
 
-  static Future<(Order, Payment, Ticket)> checkout({
+  static Future<(Order, Payment, List<Ticket>)> checkout({
     required int eventId,
     required String eventTitle,
     required String holderName,
@@ -21,9 +21,8 @@ class CheckoutService {
     required String paymentMethod,
   }) async {
     final now = DateTime.now();
-    final orderId = 'ORD-${now.millisecondsSinceEpoch}';
-    final paymentId = 'PAY-${now.millisecondsSinceEpoch}';
-    final ticketId = 'TKT-${now.millisecondsSinceEpoch}';
+    final orderId = 'ORD-${now.microsecondsSinceEpoch}';
+    final paymentId = 'PAY-${now.microsecondsSinceEpoch}';
 
     final order = Order(
       id: orderId,
@@ -46,32 +45,37 @@ class CheckoutService {
       createdAt: now,
     );
 
-    final ticket = Ticket(
-      id: ticketId,
-      orderId: orderId,
-      eventId: eventId,
-      eventTitle: eventTitle,
-      holderName: holderName,
-      seatLabel: 'GA',
-      qrPayload: jsonEncode({
-        'ticketId': ticketId,
-        'eventId': eventId,
-        'orderId': orderId,
-        'holder': holderName,
-        'issuedAt': now.toIso8601String(),
-      }),
-      status: 'active',
-    );
+    final issuedTickets = List<Ticket>.generate(quantity, (index) {
+      final ticketId = 'TKT-${now.microsecondsSinceEpoch}-${index + 1}';
+      return Ticket(
+        id: ticketId,
+        orderId: orderId,
+        eventId: eventId,
+        eventTitle: eventTitle,
+        holderName: holderName,
+        seatLabel: 'GA-${index + 1}',
+        qrPayload: jsonEncode({
+          'ticketId': ticketId,
+          'eventId': eventId,
+          'orderId': orderId,
+          'holder': holderName,
+          'seat': 'GA-${index + 1}',
+          'issuedAt': now.toIso8601String(),
+        }),
+        status: 'active',
+        issuedAt: now,
+      );
+    });
 
     final orders = getOrders();
     orders.insert(0, order);
     await _box.write(_ordersKey, orders.map((e) => e.toJson()).toList());
 
     final tickets = getTickets();
-    tickets.insert(0, ticket);
+    tickets.insertAll(0, issuedTickets);
     await _box.write(_ticketsKey, tickets.map((e) => e.toJson()).toList());
 
-    return (order, payment, ticket);
+    return (order, payment, issuedTickets);
   }
 
   static List<Order> getOrders() {
